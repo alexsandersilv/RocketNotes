@@ -6,6 +6,7 @@ import { SignUp } from './pages/SignUp';
 
 import { Home } from './pages/Home';
 import { Details } from './pages/Details';
+import { Profile } from './pages/Profile';
 
 
 import { ThemeProvider } from 'styled-components';
@@ -17,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode >
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <SignUp />
+      <Profile />
     </ThemeProvider>
   </React.StrictMode>,
 )
