@@ -1,55 +1,98 @@
+import { useState, useEffect } from 'react';
+
 import { Container, Links, Content } from './styles';
+
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
 import { Section } from '../../components/Section';
 import { ButtonText } from '../../components/ButtonText';
 import { Tag } from '../../components/Tag';
-
+import { api } from '../../services/api';
 
 export function Details() {
+  const [data, setData] = useState(null);
+
+  const navigate = useNavigate();
+  const params = useParams();
+
+  function handleBack() {
+    navigate(-1)
+  }
+
+  async function handleRemove() {
+    const confirm = window.confirm('Quer mesmo deletar a nota');
+    if (confirm) {
+      await api.delete(`/notes/${params.id}`);
+      navigate(-1)
+    }
+  }
+
+  useEffect(() => {
+    async function fetchNote() {
+      const response = await api.get(`/notes/${params.id}`);
+      setData(response.data);
+    }
+    fetchNote();
+  }, [])
+
   return (
     <Container>
       <Header />
 
-      <main>
-        <Content>
+      {
+        data &&
+        <main>
+          <Content>
 
-          <ButtonText title="Excluir nota" />
+            <ButtonText title="Excluir nota" onClick={handleRemove} />
 
-          <h1>
-            Introdução ao React
-          </h1>
+            <h1>
+              {
+                data.title
+              }
+            </h1>
 
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-            when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-            It has survived not only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, 
-            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-          </p>
+            <p>
+              {
+                data.description
+              }
 
+            </p>
 
-          <Section title="Links uteis">
-            <Links>
-              <li>
-                <a href="https://www.rocketseat.com.br/">https://www.rocketseat.com.br/</a>
-              </li>
-              <li>
-                <a href="https://www.rocketseat.com.br/">https://www.rocketseat.com.br/</a>
-              </li>
-            </Links>
-          </Section>
+            {
+            data.links &&
+              <Section title="Links uteis">
+                <Links>
+                  {
 
-          <Section title="Marcadores">
-            <Tag title="express" />
-            <Tag title="node" />
-          </Section>
+                    data.links.map(link => {
+                      return <li key={link.id}><a target='_blank' href={link.url}>{link.url}</a></li>
+                    })
+                  }
+                </Links>
+              </Section>
 
-          <Button title="ggf" loading />
-        </Content>
-      </main>
+            }
+
+            {
+              data.tags &&
+              <Section title="Marcadores">
+                {
+                  data.tags.map(tag => {
+                    return (
+                      <Tag key={tag.id} title={tag.name} />
+                    )
+                  })
+
+                }
+              </Section>
+            }
+            <Button title="Voltar" onClick={handleBack}  />
+          </Content>
+        </main>
+      }
     </Container>
   );
 }
